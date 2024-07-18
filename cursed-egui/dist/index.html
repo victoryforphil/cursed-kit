@@ -11,9 +11,9 @@
 
     <!-- config for our rust wasm binary. go to https://trunkrs.dev/assets/#rust for more customization -->
     
-<script type="module" nonce="c9xHf79ONiSiyP1U+bKAzg==">
-import init, * as bindings from '/cursed-egui.js';
-const wasm = await init('/cursed-egui_bg.wasm');
+<script type="module" nonce="FfyRV+A+nVcu5+5WRHazrg==">
+import init, * as bindings from 'https://victoryforphil.github.io/cursed-kit/cursed-egui.js';
+const wasm = await init('https://victoryforphil.github.io/cursed-kit/cursed-egui_bg.wasm');
 
 
 window.wasmBindings = bindings;
@@ -23,9 +23,9 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
     <!-- this is the base url relative to which other urls will be constructed. trunk will insert this from the public-url option -->
-    <base href="/" />
+    <base href="https://victoryforphil.github.io/cursed-kit/" />
 
-    <link rel="icon" href="/favicon.ico" integrity="sha384&#x2D;jNOAE6jgE03LznIulCTVP6BH4NrTuROFjP9wj8bV1UUMJKtZAvstFpIAP3PDcFpx"/>
+    <link rel="icon" href="https://victoryforphil.github.io/cursed-kit/favicon.ico" integrity="sha384&#x2D;jNOAE6jgE03LznIulCTVP6BH4NrTuROFjP9wj8bV1UUMJKtZAvstFpIAP3PDcFpx"/>
 
 
     
@@ -128,8 +128,8 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         }
     </style>
 
-<link rel="modulepreload" href="/cursed-egui.js" crossorigin=anonymous integrity="sha384-aRo5X1Lkd3gBMLLmdJmNJVhaHr1SUUmYj76YSLLrPQhrNnkx9TGCd/9zovwMJjFN">
-<link rel="preload" href="/cursed-egui_bg.wasm" crossorigin=anonymous integrity="sha384-v8Md/vdUThIB2tvtcZTyROoTKKdwl8zktaarCcJ9fqTyLVXC0pR1OoKR0Hq/fwHu" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="https://victoryforphil.github.io/cursed-kit/cursed-egui.js" crossorigin=anonymous integrity="sha384-aRo5X1Lkd3gBMLLmdJmNJVhaHr1SUUmYj76YSLLrPQhrNnkx9TGCd/9zovwMJjFN">
+<link rel="preload" href="https://victoryforphil.github.io/cursed-kit/cursed-egui_bg.wasm" crossorigin=anonymous integrity="sha384-v8Md/vdUThIB2tvtcZTyROoTKKdwl8zktaarCcJ9fqTyLVXC0pR1OoKR0Hq/fwHu" as="fetch" type="application/wasm"></head>
 
 <body>
     <!-- The WASM code will resize the canvas dynamically -->
