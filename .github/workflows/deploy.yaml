@@ -22,7 +22,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
       # Set CWD to cd ./cursed-web
-      working-directory: ./cursed-web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,9 +32,11 @@ jobs:
           node-version: 18
           cache: 'npm'
       - name: Install dependencies
-        run: cd /cursed-webnpm install
+        run: npm install
+        working-directory: ./cursed-web
       - name: Build
         run: npm run build
+        working-directory: ./cursed-web
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
