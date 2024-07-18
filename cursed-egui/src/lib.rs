@@ -2,4 +2,5 @@
 
 mod app;
 pub use app::TemplateApp;
-mod web;
+pub mod web;
+pub mod core;

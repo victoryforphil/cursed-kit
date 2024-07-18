@@ -1,42 +1,65 @@
 import * as bindings from './cursed-egui';
 import { useEffect, useState } from 'react';
 import React from 'react';
+
+let didInit = [];
+
 const useUnload = fn => {
     const cb = React.useRef(fn);
-  
-    React.useEffect(() => {
-      const onUnload = cb.current;
-      window.addEventListener('beforeunload', onUnload);
-      return () => {
-        window.removeEventListener('beforeunload', onUnload);
-      };
-    }, [cb]);
-  };
 
-const EguiView = ({id}) => {
+    React.useEffect(() => {
+        const onUnload = cb.current;
+        window.addEventListener('beforeunload', onUnload);
+        return () => {
+            window.removeEventListener('beforeunload', onUnload);
+        };
+    }, [cb]);
+};
+
+
+
+const EguiView = ({ id }) => {
     const [handle, setHandle] = useState(null);
     useEffect(() => {
-        // Function to asynchronously load WebAssembly
+        if (didInit[id]) {
+            return;
+        }
+
+      
+
+        if (handle) {
+            handle.destroy();
+            console.log("Stopping Egui for canvas_" + id);
+        }
         async function start_egui() {
-        
+
             const handle = new bindings.WebHandle();
-            handle.start("canvas_" + id);
+            const canvasElm = document.getElementById(`canvas_${id}`);
+            if (!canvasElm) {
+                console.error("Canvas element not found");
+                didInit[id] = false;
+                return;
+            }
+            handle.start(canvasElm);
+            handle.set_handle();
             setHandle(handle);
-        } 
-        
-            console.log("Starting Egui for canvas_" + id);
+            
+        }
+
+        console.log("Starting Egui for canvas_" + id);
         start_egui();
-      }, []);
+    }, []);
 
     useUnload(() => {
         if (handle) {
-            handle.stop();
+            handle.destroy();
             console.log("Stopping Egui for canvas_" + id);
         }
     });
     return (
         <div>
-            <canvas id={`canvas_${id}`}></canvas> 
+
+            <canvas id={`canvas_${id}`} ></canvas>
         </div>
     )
 }

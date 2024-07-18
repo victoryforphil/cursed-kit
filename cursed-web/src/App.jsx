@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 
 import viteLogo from '/vite.svg'
+import "rc-dock/dist/rc-dock.css";
 import './App.css'
 import init, * as bindings from './cursed-egui';
 import DockLayout from 'rc-dock'
-import "rc-dock/dist/rc-dock.css";
+
 
 import EguiView from './EguiView';
 
@@ -24,7 +25,7 @@ function App() {
           ]
         },{
           tabs: [
-            { id: 'tab2', title: 'tab2', group: "2", content: <EguiView  id="2"/> },
+            { id: 'tab2', title: 'tab2', group: "2", content: <EguiView  id="2"/>, closable: true },
             
           ]
         }
@@ -53,23 +54,32 @@ function App() {
     } 
 
     loadWasm();
+    
   }, []);
+  
 
-
+  const loadCSV = () => {
+      bindings.cursed_load_csv();
+  }
+  const randomData = () => {
+    bindings.cursed_random_data();
+  }
   if (!wasmLoaded) {
     return <div>Loading...</div>;
   }else{
     return (
       <>
         
-  
+        <button onClick={()=>loadCSV()}>Load CSV</button>
+        <button onClick={()=>randomData()}>Random Data</button>
        
         <DockLayout
+
           defaultLayout={defaultLayout}
           style={{
             position: "absolute",
             left: 10,
-            top: 10,
+            top: 100,
             right: 10,
             bottom: 10,
           }}

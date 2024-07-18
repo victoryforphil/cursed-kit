@@ -11,7 +11,7 @@
 
     <!-- config for our rust wasm binary. go to https://trunkrs.dev/assets/#rust for more customization -->
     
-<script type="module" nonce="trGPciVYyc4AEEo7nzsj/A==">
+<script type="module" nonce="Rm4tHlvJ1FHrj5TKGQq3Bg==">
 import init, * as bindings from '/cursed-egui.js';
 const wasm = await init('/cursed-egui_bg.wasm');
 
@@ -128,26 +128,18 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         }
     </style>
 
-<link rel="modulepreload" href="/cursed-egui.js" crossorigin=anonymous integrity="sha384-541hLEZZjCCM8LeOQ+pUuJHeEmpEIH1PwHy+v24u8hpihRUNYL66XYRh6pIt+uUa">
-<link rel="preload" href="/cursed-egui_bg.wasm" crossorigin=anonymous integrity="sha384-LYggynPFXkLihOuFEkbrpzAWksRH9fFq33uYpJfZ/glEm/5sHw07LFSUUHrwEb6G" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/cursed-egui.js" crossorigin=anonymous integrity="sha384-lBv/2hxHBkWsHn/7Lho9LKfhtUlv7p1J72AjOmdYnPo0kFmjRB/zGcMgG9GcG2gz">
+<link rel="preload" href="/cursed-egui_bg.wasm" crossorigin=anonymous integrity="sha384-DMSn2fLBcKdLRFQy3R3pxaAFdUIML+rKFY2lZbrLBfkcTcj1DEHkcvwKYKHnxpDs" as="fetch" type="application/wasm"></head>
 
 <body>
     <!-- The WASM code will resize the canvas dynamically -->
     <!-- the id is hardcoded in main.rs . so, make sure both match. -->
     <canvas id="canvas_1"></canvas>
 
-    <!-- the loading spinner will be removed in main.rs -->
-    <div class="centered" id="loading_text">
-        <p style="font-size:16px">
-            Loading…
-        </p>
-        <div class="lds-dual-ring"></div>
-    </div>
-
+    
     <!--Register Service Worker. this will cache the wasm / js scripts for offline use (for PWA functionality). -->
     <!-- Force refresh (Ctrl + F5) to load the latest files instead of cached files  -->
     <script>
-        start("canvas_1")
         // We disable caching during development so that we always view the latest version.
         if ('serviceWorker' in navigator && window.location.hash !== "#dev") {
             window.addEventListener('load', function () {
