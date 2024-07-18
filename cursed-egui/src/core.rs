@@ -83,4 +83,13 @@ impl CursedCore{
             self.add_data(key, time, value);
         }
     }
+
+    pub fn sin(&mut self){
+        for i in 0..1000{
+            let key = "sin".to_string();
+            let time = i ;
+            let value = CursedValue::Number((i as f64 / 10.).sin());
+            self.add_data(key, time, value);
+        }
+    }
 }

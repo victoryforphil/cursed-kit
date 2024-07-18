@@ -18,7 +18,7 @@ const useUnload = fn => {
 
 
 
-const EguiView = ({ id }) => {
+const EguiView = ({ id,widget}) => {
     const [handle, setHandle] = useState(null);
     useEffect(() => {
         if (didInit[id]) {
@@ -40,7 +40,7 @@ const EguiView = ({ id }) => {
                 didInit[id] = false;
                 return;
             }
-            handle.start(canvasElm);
+            handle.start(canvasElm, widget);
             handle.set_handle();
             setHandle(handle);
             

@@ -8,6 +8,7 @@ import DockLayout from 'rc-dock'
 
 
 import EguiView from './EguiView';
+import PlotlyView from './PlotlyView';
 
 
 let didInit = false;
@@ -20,12 +21,18 @@ function App() {
       children: [
         {
           tabs: [
-            { id: 'tab1', title: 'tab1', group: "1", content: <EguiView id="1"/> },
+            { id: 'tab1', title: 'tab1', group: "1", content: <EguiView id="1" widget={bindings.CursedWidget.Latest}/> },
             
           ]
         },{
           tabs: [
-            { id: 'tab2', title: 'tab2', group: "2", content: <EguiView  id="2"/>, closable: true },
+            { id: 'tab2', title: 'tab2', group: "2", content: <EguiView  id="2" widget={bindings.CursedWidget.Plot}/>, closable: true },
+            
+          ]
+        }
+        ,{
+          tabs: [
+            { id: 'tab3', title: 'Plotly', group: "3", content: <PlotlyView/>, closable: true },
             
           ]
         }
@@ -72,6 +79,7 @@ function App() {
         
         <button onClick={()=>loadCSV()}>Load CSV</button>
         <button onClick={()=>randomData()}>Random Data</button>
+        <button onClick={()=>bindings.cursed_sin()}>Sin Data</button>
        
         <DockLayout
 
