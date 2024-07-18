@@ -49,7 +49,7 @@ function App() {
       }
       didInit = true;
 
-      const wasm = await init('/cursed-egui_bg.wasm');
+      const wasm = await init('cursed-egui_bg.wasm');
 
 
       window.wasmBindings = bindings;
