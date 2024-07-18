@@ -36,7 +36,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json' # THIS PATTERN did the trick for me.
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
       - name: Build
         run: npm run build
       - name: Setup Pages
