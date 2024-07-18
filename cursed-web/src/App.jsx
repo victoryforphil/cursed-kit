@@ -27,14 +27,14 @@ function App() {
           ]
         },{
           tabs: [
-            { id: 'tab2', title: 'tab2', group: "2", content: <EguiView  id="2" widget={bindings.CursedWidget.Plot}/>, closable: true },
+            { id: 'tab2', title: 'tab2', group: "1", content: <EguiView  id="2" widget={bindings.CursedWidget.Plot}/>, closable: true },
             
           ]
         }
         ,{
           tabs: [
-            { id: 'tab3', title: 'Plotly', group: "3", content: <PlotlyView/>, closable: true },
-            { id: 'tab4', title: 'Video', group: "3", content: <VideoView/>, closable: true },
+            { id: 'tab3', title: 'Plotly', group: "1", content: <PlotlyView/>, closable: true },
+            { id: 'tab4', title: 'Video', group: "1", content: <VideoView/>, closable: true },
           ]
         }
       ]
