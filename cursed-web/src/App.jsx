@@ -9,6 +9,7 @@ import DockLayout from 'rc-dock'
 
 import EguiView from './EguiView';
 import PlotlyView from './PlotlyView';
+import VideoView from './VideoView';
 
 
 let didInit = false;
@@ -33,7 +34,7 @@ function App() {
         ,{
           tabs: [
             { id: 'tab3', title: 'Plotly', group: "3", content: <PlotlyView/>, closable: true },
-            
+            { id: 'tab4', title: 'Video', group: "3", content: <VideoView/>, closable: true },
           ]
         }
       ]
