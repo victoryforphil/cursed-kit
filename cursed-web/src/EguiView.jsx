@@ -21,9 +21,7 @@ const useUnload = fn => {
 const EguiView = ({ id,widget}) => {
     const [handle, setHandle] = useState(null);
     useEffect(() => {
-        if (didInit[id]) {
-            return;
-        }
+      
 
       
 
@@ -52,14 +50,14 @@ const EguiView = ({ id,widget}) => {
 
     useUnload(() => {
         if (handle) {
-            handle.destroy();
+         
             console.log("Stopping Egui for canvas_" + id);
         }
     });
     return (
-        <div>
+        <div className="canvas_box" >
 
-            <canvas id={`canvas_${id}`} ></canvas>
+            <canvas id={`canvas_${id}`}></canvas>
         </div>
     )
 }

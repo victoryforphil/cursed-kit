@@ -56,13 +56,13 @@ const PlotlyView = ({ }) => {
 
     return (
         <div>
-            <button onClick={() => loadData()}>Load Data</button>
+
             <Plot
 
                 data={[
                     data ? data : { x: [0], y: [0], type: 'scatter', mode: 'lines+markers', marker: { color: 'red' } }
                 ]}
-                layout={{ width: "50%", height: "100%", title: 'A Fancy Plot' }}
+                layout={{ width: "100%", height: "100%", title: 'A Fancy Plot' }}
             />
         </div>
     )
