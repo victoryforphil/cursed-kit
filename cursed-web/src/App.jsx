@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react'
 import viteLogo from '/vite.svg'
 
 import init, * as bindings from './cursed-egui';
-import {DockviewReact} from 'dockview';
+import { DockviewReact } from 'dockview';
 
 
 
 import EguiView from './EguiView';
 import PlotlyView from './PlotlyView';
 import VideoView from './VideoView';
-
+import './App.css';
 
 let didInit = false;
 
@@ -36,15 +36,15 @@ function App() {
       dispatchEvent(new CustomEvent("TrunkApplicationStarted", { detail: { wasm } }));
       setWasmLoaded(true);
       console.log("Wasm loaded");
-    } 
+    }
 
     loadWasm();
-    
+
   }, []);
-  
+
 
   const loadCSV = () => {
-      bindings.cursed_load_csv();
+    bindings.cursed_load_csv();
   }
   const randomData = () => {
     bindings.cursed_random_data();
@@ -57,21 +57,37 @@ function App() {
       return <VideoView></VideoView>
     },
     egui_plots: (props) => {
-      
-      return <EguiView id={props.api.id} widget={bindings.CursedWidget.Plot}></EguiView>
+
+      return <EguiView api={props.api} id={props.api.id} widget={bindings.CursedWidget.Plot}></EguiView>
     },
     egui_latest: (props) => {
-      return <EguiView id={props.api.id}></EguiView>
+
+      return <EguiView api={props.api} id={props.api.id}></EguiView>
     }
 
   }
-  
+
   const onDockReady = (dock) => {
     const api = dock.api;
+    api.onWillDragPanel((e) => {
+      // apply pointer-events: none; to all canvas elements
+      const canvasElms = document.querySelectorAll('canvas');
+      canvasElms.forEach((canvasElm) => {
+        canvasElm.style.pointerEvents = 'none';
+      });
+      console.log("onWillDragPanel: " + e);
+  }); 
+  api.onWillDrop((e) => {
+      // apply pointer-events: auto; to the canvas element
+      const canvasElms = document.querySelectorAll('canvas');
+      canvasElms.forEach((canvasElm) => {
+        canvasElm.style.pointerEvents = 'auto';
+      });
+      console.log("onWillDrop: " + e);
+  }); 
     const panel = api.addPanel({
       id: 'plotly_1',
       component: 'video',
-
     });
     const panel2 = api.addPanel({
       id: 'video_1',
@@ -81,35 +97,51 @@ function App() {
     const panel3 = api.addPanel({
       id: 'egui_plots_1',
       component: 'egui_plots',
-       renderer: 'always'
+      renderer: 'always'
 
     });
     const panel4 = api.addPanel({
       id: 'egui_latest_1 ',
       component: 'egui_latest',
-       renderer: 'always',
-       position: {
+      renderer: 'always',
+      position: {
         referencePanel: 'egui_plots_1',
         direction: 'below'
       }
     });
+
+    panel4.onDidDimensionsChange
   }
+
+
   if (!wasmLoaded) {
     return <div>Loading...</div>;
-  }else{
+  } else {
     return (
-      <div id="app">
-        
-        <button onClick={()=>loadCSV()}>Load CSV</button>
-        <button onClick={()=>randomData()}>Random Data</button>
-        <button onClick={()=>bindings.cursed_sin()}>Sin Data</button>
-       
-        <DockviewReact onReady={onDockReady} components={components} className={'dockview-theme-abyss'}/>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+        }}
+      >
+        <div
+          style={{
+            flexGrow: 1,
+            overflow: 'hidden',
+          }}
+        >
+          <button onClick={() => loadCSV()}>Load CSV</button>
+          <button onClick={() => randomData()}>Random Data</button>
+          <button onClick={() => bindings.cursed_sin()}>Sin Data</button>
+
+          <DockviewReact onReady={onDockReady} components={components} className={'dockview-theme-abyss'} />
+        </div>
       </div>
     )
   }
 
-  
+
 }
 
 export default App
