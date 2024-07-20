@@ -1,7 +1,7 @@
 import * as bindings from './cursed-egui';
 import { useEffect, useState } from 'react';
 import React from 'react';
-
+import './Egui.css'
 let didInit = [];
 
 const useUnload = fn => {
@@ -18,14 +18,10 @@ const useUnload = fn => {
 
 
 
-const EguiView = ({ id,widget}) => {
+const EguiView = ({ id,widget, api}) => {
     const [handle, setHandle] = useState(null);
+    const [dimensions, setDimensions] = useState({ width: api.width, height: api.height });
     useEffect(() => {
-        if (didInit[id]) {
-            return;
-        }
-
-      
 
         if (handle) {
             handle.destroy();
@@ -49,17 +45,53 @@ const EguiView = ({ id,widget}) => {
         console.log("Starting Egui for canvas_" + id);
         start_egui();
     }, []);
+    
+    // Resize canvas element when dimensions change
+    useEffect(() => {
+        console.log(`Setting canvas_${id} dimensions to ${dimensions.width}x${dimensions.height}`)
+        const canvasElm = document.getElementById(`canvas_${id}`);
+      //  canvasElm.width = dimensions.width;
+      //  canvasElm.height = dimensions.height;
+    }, [dimensions]);
 
+    api.onDidDimensionsChange((dimensions) => {
+        console.log(dimensions);
+        setDimensions(dimensions);
+    });
+    api.onDidLocationChange((location) => {
+        console.log(location);
+    }
+    );
+    api.onDidParametersChange((parameters) => {
+        console.log(parameters);
+    }
+    );
+    api.onDidActiveGroupChange((e) => {
+        console.log(`EguiView will focus: ${e}`);
+    }
+    );
+
+  
+    useEffect(() => {
+        console.log("EguiView focused: " + api.isFocused);
+    }, [api.isFocused]);
     useUnload(() => {
         if (handle) {
-            handle.destroy();
+         
             console.log("Stopping Egui for canvas_" + id);
         }
     });
     return (
-        <div>
+        <div
+        style={{
+          height: '100%',
 
-            <canvas id={`canvas_${id}`} ></canvas>
+
+        }}
+      > 
+       <div id="canvasParent">
+        <canvas id={`canvas_${id}`}></canvas>
+        </div>
         </div>
     )
 }

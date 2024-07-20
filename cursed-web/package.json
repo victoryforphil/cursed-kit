@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dockview": "^1.15.2",
     "plotly.js": "^2.34.0",
     "rc-dock": "^3.3.0",
     "react": "^18.3.1",
