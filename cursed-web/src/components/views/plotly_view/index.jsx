@@ -1,9 +1,9 @@
-import * as bindings from './cursed-egui';
+
 import { useEffect, useState } from 'react';
 import React from 'react';
 
 import Plot from 'react-plotly.js';
-
+import * as bindings from '../../../wasm/cursed-egui';
 
 
 const PlotlyView = ({ }) => {
