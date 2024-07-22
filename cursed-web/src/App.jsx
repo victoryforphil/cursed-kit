@@ -11,6 +11,7 @@ import EguiView from './EguiView';
 import PlotlyView from './PlotlyView';
 import VideoView from './VideoView';
 import './App.css';
+import CursedNavBar from './components/navbar';
 
 let didInit = false;
 
@@ -43,12 +44,7 @@ function App() {
   }, []);
 
 
-  const loadCSV = () => {
-    bindings.cursed_load_csv();
-  }
-  const randomData = () => {
-    bindings.cursed_random_data();
-  }
+ 
   const components = {
     plotly: (props) => {
       return <PlotlyView></PlotlyView>
@@ -131,9 +127,7 @@ function App() {
             overflow: 'hidden',
           }}
         >
-          <button onClick={() => loadCSV()}>Load CSV</button>
-          <button onClick={() => randomData()}>Random Data</button>
-          <button onClick={() => bindings.cursed_sin()}>Sin Data</button>
+          <CursedNavBar/>
 
           <DockviewReact onReady={onDockReady} components={components} className={'dockview-theme-abyss'} />
         </div>
