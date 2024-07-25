@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blueprintjs/core": "^5.10.5",
+    "@blueprintjs/icons": "^5.10.0",
     "dockview": "^1.15.2",
     "plotly.js": "^2.34.0",
     "rc-dock": "^3.3.0",

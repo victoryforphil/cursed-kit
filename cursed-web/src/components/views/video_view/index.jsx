@@ -1,4 +1,4 @@
-import * as bindings from './cursed-egui';
+
 import { useEffect, useState } from 'react';
 import React from 'react';
 
