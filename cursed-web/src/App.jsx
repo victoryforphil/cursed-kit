@@ -5,6 +5,7 @@ import viteLogo from "/vite.svg";
 import init, * as bindings from "./wasm/cursed-egui";
 import { DockviewReact } from "dockview";
 
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import "./App.css";
 import CursedNavBar from "./components/navbar";
@@ -15,6 +16,18 @@ import VideoView from "./components/views/video_view";
 let didInit = false;
 
 function App() {
+    const [socketUrl, setSocketUrl] = useState('ws://127.0.0.1:3030/datastsore');
+    const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+    const [messageHistory, setMessageHistory] = useState([]);
+
+    useEffect(() => {
+        if (lastMessage !== null) {
+          setMessageHistory((prev) => prev.concat(lastMessage));
+          console.log(lastMessage);
+        }
+      }, [lastMessage]);
+
+
     const [wasmLoaded, setWasmLoaded] = useState(false);
     useEffect(() => {
         // Function to asynchronously load WebAssembly
@@ -35,9 +48,28 @@ function App() {
             console.log("Wasm loaded");
         }
 
-        loadWasm();
+        //loadWasm();
     }, []);
 
+    useEffect(() => {
+        console.log('WebSocket is currently: ', connectionStatus);
+
+        if (readyState === ReadyState.OPEN) {
+            const request_data = {
+                type: 'request',
+                keys : ['test/*']
+            }
+            sendMessage(JSON.stringify(request_data));
+        }
+    }, [readyState]);
+    const connectionStatus = {
+        [ReadyState.CONNECTING]: 'Connecting',
+        [ReadyState.OPEN]: 'Open',
+        [ReadyState.CLOSING]: 'Closing',
+        [ReadyState.CLOSED]: 'Closed',
+        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+      }[readyState];
+    
     const components = {
         plotly: (props) => {
             return <PlotlyView></PlotlyView>;
@@ -104,7 +136,7 @@ function App() {
     };
 
     if (!wasmLoaded) {
-        return <div>Loading...</div>;
+        return <span>The WebSocket is currently {connectionStatus}</span>;
     } else {
         return (
             <div
