@@ -56,8 +56,10 @@ function App() {
 
         if (readyState === ReadyState.OPEN) {
             const request_data = {
-                type: 'request',
-                keys : ['test/*']
+                Request:{
+                    topics: ['test/str', 'test/num'],
+                }
+               
             }
             sendMessage(JSON.stringify(request_data));
         }

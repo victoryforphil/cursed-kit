@@ -1,7 +1,7 @@
 
 use std::collections::BTreeMap;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, serde::Deserialize, serde::Serialize)]
 pub enum CursedValue{
    Number(f64),
    String(String),
