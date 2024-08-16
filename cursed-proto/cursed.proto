@@ -1,0 +1,15 @@
+syntax = "proto3";
+package cursed;
+
+
+service TopicService{
+    rpc RequestTopicList(TopicListRequest) returns (TopicListResponse);
+}
+
+message TopicListRequest{
+    int32 limit = 1;
+}
+
+message TopicListResponse{
+    repeated string topics = 1;
+}
