@@ -8,10 +8,16 @@ import './index.css'
 import 'dockview/dist/styles/dockview.css';
 import App from './App.jsx'
 
+
+import "@mantine/core/styles.css";
+import { MantineProvider } from "@mantine/core";
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <div className="app">
+    <MantineProvider>
     <App />
+    </MantineProvider>
     </div>
   </React.StrictMode>
 )

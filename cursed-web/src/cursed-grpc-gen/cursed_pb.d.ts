@@ -2,41 +2,39 @@ import * as jspb from 'google-protobuf'
 
 
 
-export class TopicListRequest extends jspb.Message {
-  getLimit(): number;
-  setLimit(value: number): TopicListRequest;
+export class CSVRequest extends jspb.Message {
+  getPath(): string;
+  setPath(value: string): CSVRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): TopicListRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: TopicListRequest): TopicListRequest.AsObject;
-  static serializeBinaryToWriter(message: TopicListRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): TopicListRequest;
-  static deserializeBinaryFromReader(message: TopicListRequest, reader: jspb.BinaryReader): TopicListRequest;
+  toObject(includeInstance?: boolean): CSVRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: CSVRequest): CSVRequest.AsObject;
+  static serializeBinaryToWriter(message: CSVRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CSVRequest;
+  static deserializeBinaryFromReader(message: CSVRequest, reader: jspb.BinaryReader): CSVRequest;
 }
 
-export namespace TopicListRequest {
+export namespace CSVRequest {
   export type AsObject = {
-    limit: number,
+    path: string,
   }
 }
 
-export class TopicListResponse extends jspb.Message {
-  getTopicsList(): Array<string>;
-  setTopicsList(value: Array<string>): TopicListResponse;
-  clearTopicsList(): TopicListResponse;
-  addTopics(value: string, index?: number): TopicListResponse;
+export class CSVResponse extends jspb.Message {
+  getCsvContents(): string;
+  setCsvContents(value: string): CSVResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): TopicListResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: TopicListResponse): TopicListResponse.AsObject;
-  static serializeBinaryToWriter(message: TopicListResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): TopicListResponse;
-  static deserializeBinaryFromReader(message: TopicListResponse, reader: jspb.BinaryReader): TopicListResponse;
+  toObject(includeInstance?: boolean): CSVResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: CSVResponse): CSVResponse.AsObject;
+  static serializeBinaryToWriter(message: CSVResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CSVResponse;
+  static deserializeBinaryFromReader(message: CSVResponse, reader: jspb.BinaryReader): CSVResponse;
 }
 
-export namespace TopicListResponse {
+export namespace CSVResponse {
   export type AsObject = {
-    topicsList: Array<string>,
+    csvContents: string,
   }
 }
 

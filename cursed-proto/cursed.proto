@@ -2,14 +2,16 @@ syntax = "proto3";
 package cursed;
 
 
-service TopicService{
-    rpc RequestTopicList(TopicListRequest) returns (TopicListResponse);
+service CSVService{
+    rpc RequestCSV(CSVRequest) returns (CSVResponse);
 }
 
-message TopicListRequest{
-    int32 limit = 1;
+message CSVRequest{
+    string path = 1;
 }
 
-message TopicListResponse{
-    repeated string topics = 1;
+message CSVResponse{
+    string csv_contents = 1;
 }
+
+

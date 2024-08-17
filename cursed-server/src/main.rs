@@ -1,6 +1,6 @@
 
 use std::{sync::{Arc, Mutex}, time::Instant};
-use crate::cursed::topic_service_server::TopicService;
+
 use tonic_web::GrpcWebLayer;
 use tonic::{transport::Server, Request, Response, Status};
 use log::{debug, info};
@@ -13,23 +13,26 @@ pub mod cursed {
 
 
 #[derive(Debug)]
-pub struct TopicServiceImpl {
-    topics: Arc<Mutex<Vec<String>>>,
+pub struct CSVServiceImpl {
+
 }
 
 
 #[tonic::async_trait]
-impl cursed::topic_service_server::TopicService for TopicServiceImpl {
-    async fn request_topic_list(
+impl cursed::csv_service_server::CsvService for CSVServiceImpl {
+    async fn request_csv(
         &self,
-        request: Request<cursed::TopicListRequest>, // Accept request of type HelloRequest
-    ) -> Result<Response<cursed::TopicListResponse>, Status> { // Return an instance of type HelloReply
-       
-       info!("Got a request: {:?}", request);
-        let topics = self.topics.lock().unwrap();
+        request: Request<cursed::CsvRequest>, // Accept request of type HelloRequest
+    ) -> Result<Response<cursed::CsvResponse>, Status> { // Return an instance of type HelloReply
+        
+        let inner = request.into_inner();
+        info!("Got a request: {:?}",inner.clone());
+        
+        let path = rfd::FileDialog::new().pick_file().unwrap();
+        let file = std::fs::read_to_string(path).unwrap();
 
-        let reply = cursed::TopicListResponse {
-            topics: topics.clone(),
+        let reply = cursed::CsvResponse {
+            csv_contents: file,
         };
         Ok(Response::new(reply)) // Send back our formatted greeting
     }
@@ -44,10 +47,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
     let addr = "0.0.0.0:5050".parse()?;
 
-    let service = TopicServiceImpl{
-        topics: Arc::new(Mutex::new(vec!["topic1".to_string(), "topic2".to_string()])),
+    let service = CSVServiceImpl{
+        
     };
-    let service = cursed::topic_service_server::TopicServiceServer::new(service);
+    let service = cursed::csv_service_server::CsvServiceServer::new(service);
     let service = tonic_web::enable(service);
     info!("Server listening on {}", addr);
     Server::builder()

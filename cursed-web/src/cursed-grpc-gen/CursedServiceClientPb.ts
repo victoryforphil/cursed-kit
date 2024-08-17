@@ -20,7 +20,7 @@ import * as grpcWeb from 'grpc-web';
 import * as cursed_pb from './cursed_pb'; // proto import: "cursed.proto"
 
 
-export class TopicServiceClient {
+export class CSVServiceClient {
   client_: grpcWeb.AbstractClientBase;
   hostname_: string;
   credentials_: null | { [index: string]: string; };
@@ -39,47 +39,47 @@ export class TopicServiceClient {
     this.options_ = options;
   }
 
-  methodDescriptorRequestTopicList = new grpcWeb.MethodDescriptor(
-    '/cursed.TopicService/RequestTopicList',
+  methodDescriptorRequestCSV = new grpcWeb.MethodDescriptor(
+    '/cursed.CSVService/RequestCSV',
     grpcWeb.MethodType.UNARY,
-    cursed_pb.TopicListRequest,
-    cursed_pb.TopicListResponse,
-    (request: cursed_pb.TopicListRequest) => {
+    cursed_pb.CSVRequest,
+    cursed_pb.CSVResponse,
+    (request: cursed_pb.CSVRequest) => {
       return request.serializeBinary();
     },
-    cursed_pb.TopicListResponse.deserializeBinary
+    cursed_pb.CSVResponse.deserializeBinary
   );
 
-  requestTopicList(
-    request: cursed_pb.TopicListRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<cursed_pb.TopicListResponse>;
+  requestCSV(
+    request: cursed_pb.CSVRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<cursed_pb.CSVResponse>;
 
-  requestTopicList(
-    request: cursed_pb.TopicListRequest,
+  requestCSV(
+    request: cursed_pb.CSVRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: cursed_pb.TopicListResponse) => void): grpcWeb.ClientReadableStream<cursed_pb.TopicListResponse>;
+               response: cursed_pb.CSVResponse) => void): grpcWeb.ClientReadableStream<cursed_pb.CSVResponse>;
 
-  requestTopicList(
-    request: cursed_pb.TopicListRequest,
+  requestCSV(
+    request: cursed_pb.CSVRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: cursed_pb.TopicListResponse) => void) {
+               response: cursed_pb.CSVResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
-          '/cursed.TopicService/RequestTopicList',
+          '/cursed.CSVService/RequestCSV',
         request,
         metadata || {},
-        this.methodDescriptorRequestTopicList,
+        this.methodDescriptorRequestCSV,
         callback);
     }
     return this.client_.unaryCall(
     this.hostname_ +
-      '/cursed.TopicService/RequestTopicList',
+      '/cursed.CSVService/RequestCSV',
     request,
     metadata || {},
-    this.methodDescriptorRequestTopicList);
+    this.methodDescriptorRequestCSV);
   }
 
 }

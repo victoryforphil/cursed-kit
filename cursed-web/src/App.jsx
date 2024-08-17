@@ -5,34 +5,17 @@ import viteLogo from "/vite.svg";
 import init, * as bindings from "./wasm/cursed-egui";
 import { DockviewReact } from "dockview";
 
+import { FileInput } from '@mantine/core';
 
 import "./App.css";
 import CursedNavBar from "./components/navbar";
 import EguiView from "./components/views/egui_view";
 import PlotlyView from "./components/views/plotly_view";
 import VideoView from "./components/views/video_view";
-import {TopicServiceClient} from "cursed-grpc-gen/CursedServiceClientPb"
-import * as CursedPB from "cursed-grpc-gen/cursed_pb"
+
 let didInit = false;
 
 function App() {
-
-    const [url, setUrl] = useState("http://0.0.0.0:5050")
-    const [client, setClient] = useState(undefined)
-
-    useEffect(() => {
-        const client = new TopicServiceClient(url, null, null);
-            console.log("Requesting topic list")
-            const request = new CursedPB.TopicListRequest();
-            client.requestTopicList(request).then((response) => {
-                console.log("Received topic list")
-                console.log(response)
-            }).catch((error) => {
-                console.log("Error requesting topic list")
-                console.log(error)
-            })
-    }, [url])
-
 
 
     const [wasmLoaded, setWasmLoaded] = useState(false);
@@ -141,7 +124,6 @@ function App() {
                     }}
                 >
                     <CursedNavBar />
-
                     <DockviewReact
                         onReady={onDockReady}
                         components={components}
