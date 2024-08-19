@@ -76,11 +76,10 @@ impl WebHandle {
 }
 
 #[wasm_bindgen]
-pub fn cursed_load_csv() {
+pub fn cursed_load_csv(contents: &str) {
     let core = CursedCore::global();
-    let csv = include_str!("../assets/single_field.csv");
     let mut core = core.lock().unwrap();
-    core.from_csv(csv);
+    core.from_csv(contents);
 }
 
 #[wasm_bindgen]

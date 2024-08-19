@@ -5,6 +5,7 @@ import viteLogo from "/vite.svg";
 import init, * as bindings from "./wasm/cursed-egui";
 import { DockviewReact } from "dockview";
 
+import { FileInput } from '@mantine/core';
 
 import "./App.css";
 import CursedNavBar from "./components/navbar";
@@ -15,6 +16,8 @@ import VideoView from "./components/views/video_view";
 let didInit = false;
 
 function App() {
+
+
     const [wasmLoaded, setWasmLoaded] = useState(false);
     useEffect(() => {
         // Function to asynchronously load WebAssembly
@@ -121,7 +124,6 @@ function App() {
                     }}
                 >
                     <CursedNavBar />
-
                     <DockviewReact
                         onReady={onDockReady}
                         components={components}

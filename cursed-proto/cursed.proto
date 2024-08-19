@@ -1,0 +1,17 @@
+syntax = "proto3";
+package cursed;
+
+
+service CSVService{
+    rpc RequestCSV(CSVRequest) returns (CSVResponse);
+}
+
+message CSVRequest{
+    string path = 1;
+}
+
+message CSVResponse{
+    string csv_contents = 1;
+}
+
+
