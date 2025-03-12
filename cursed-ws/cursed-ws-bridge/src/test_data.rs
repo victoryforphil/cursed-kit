@@ -13,7 +13,7 @@ impl TestVec3{
     }
 
     pub fn new_sin(t: f64) -> Self{
-        Self{x: t.sin(), y: t.cos(), z: t.tan()}
+        Self{x: t.sin(), y: -t.sin(), z: (t + 0.5).sin()}
     }
 }
 

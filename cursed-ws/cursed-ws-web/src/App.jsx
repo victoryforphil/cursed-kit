@@ -1,33 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
+import { AppLayout } from './layout/AppLayout'
+import { MessagesView } from './components/views/MessagesView'
+import { PlotsView } from './components/views/PlotsView'
+import { ThreeDView } from './components/views/ThreeDView'
+import { DebugView } from './components/views/DebugView'
+import { useWebSocketContext } from './context/WebSocketProvider'
+import { Box, Text, Group, Badge } from '@mantine/core'
+import '@mantine/core/styles.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+/**
+ * Debug status component that shows in dev mode
+ */
+function ConnectionDebugStatus() {
+  const { isConnected, connectionStatus, readyState } = useWebSocketContext();
+
+  // Only show in development mode
+  if (process.env.NODE_ENV !== 'development') return null;
 
   return (
+    <Box 
+      style={{ 
+        position: 'fixed', 
+        bottom: 0, 
+        right: 0,
+        zIndex: 1000, 
+        padding: '5px 10px',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        borderRadius: '4px 0 0 0'
+      }}
+    >
+      <Group spacing="xs">
+        <Text size="xs" c="dimmed">WS:</Text>
+        <Badge 
+          size="xs" 
+          color={isConnected ? 'green' : 'red'}
+        >
+          {connectionStatus} ({readyState})
+        </Badge>
+      </Group>
+    </Box>
+  );
+}
+
+/**
+ * App - Main application component
+ * 
+ * Defines the application routes and overall structure
+ */
+function App() {
+  return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={<Navigate to="/messages" replace />} />
+          <Route path="messages" element={<MessagesView />} />
+          <Route path="plots" element={<PlotsView />} />
+          <Route path="3d" element={<ThreeDView />} />
+          <Route path="debug" element={<DebugView />} />
+        </Route>
+      </Routes>
+      <ConnectionDebugStatus />
     </>
   )
 }

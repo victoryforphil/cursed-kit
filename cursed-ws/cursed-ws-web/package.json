@@ -6,12 +6,31 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:cli": "vite build && mkdir -p ../cursed-ws-bridge/static && rm -rf ../cursed-ws-bridge/static/* && cp -r dist/* ../cursed-ws-bridge/static/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gfazioli/mantine-split-pane": "^1.1.4",
+    "@mantine/code-highlight": "^7.17.1",
+    "@mantine/core": "7",
+    "@mantine/dropzone": "^7.17.1",
+    "@mantine/hooks": "7",
+    "@mantine/notifications": "^7.17.1",
+    "@sinm/react-file-tree": "^1.1.1",
+    "@tabler/icons-react": "^3.31.0",
+    "@types/lodash": "^4.17.16",
+    "date-fns": "^4.1.0",
+    "diff": "^7.0.0",
+    "lodash": "^4.17.21",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-diff-viewer": "^3.1.1",
+    "react-dom": "^19.0.0",
+    "react-json-view-lite": "^2.4.1",
+    "react-router": "^7.2.0",
+    "react-router-dom": "^7.2.0",
+    "react-use-websocket": "^4.13.0",
+    "recharts": "^2.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

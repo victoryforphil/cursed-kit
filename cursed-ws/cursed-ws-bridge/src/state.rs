@@ -14,7 +14,7 @@ impl Default for WSBridgeState{
         Self{
             t_ms: 0,
             last_t_ms: None,
-            send_rate_hz: 10.0,
+            send_rate_hz: 500.0,
         }
     }
 }

@@ -77,15 +77,17 @@ pub async fn ws_connect(ws: WebSocket, state: StateHandle) {
 
     // Make a new thread to send updates to the client at the state.send_rate_hz
     let state_clone = state.clone();
+    let start_time = std::time::Instant::now();
     tokio::spawn(async move {
         let mut last_send_time = 0;
         let send_interval = (1.0 / state_clone.lock().unwrap().send_rate_hz) * 1000.0;
         loop {
-            let current_time = std::time::Instant::now().elapsed().as_millis() as u64;
+            let current_time = start_time.elapsed().as_millis() as u64;
             if current_time - last_send_time >= send_interval as u64 {
                 last_send_time = current_time;
                 let state_clone = state.clone();
-                let test_data = TestData::new_sin(last_send_time as f64);
+                let t_sec = last_send_time as f64 / 1000.0;
+                let test_data = TestData::new_sin(t_sec);
                 let update = SyncUpdate::new("test/topic".to_string(), vec![(last_send_time as u64, serde_json::to_string(&test_data).unwrap())]);
                 let message = update.message(last_send_time as u64);
                 let msg_json = serde_json::to_string(&message).unwrap();
