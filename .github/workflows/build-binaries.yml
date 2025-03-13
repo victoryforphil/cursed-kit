@@ -69,8 +69,14 @@ jobs:
           
           echo "✅ Binary for ${{ matrix.target }} found at: $BINARY_PATH"
           
-          # Copy to expected location if needed
-          cp "$BINARY_PATH" "./target/${{ matrix.target }}/release/" || echo "Already in correct location"
+          # Copy to expected location only if needed
+          TARGET_PATH="./target/${{ matrix.target }}/release/cursed-ws-bridge"
+          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            cp "$BINARY_PATH" "./target/${{ matrix.target }}/release/"
+          else
+            echo "Binary already in standard location"
+          fi
           ls -la "./target/${{ matrix.target }}/release/"
       
       # Upload artifacts
@@ -134,8 +140,14 @@ jobs:
           fi
           
           echo "✅ x86_64 binary found at: $BINARY_PATH"
-          # Copy to expected location
-          cp "$BINARY_PATH" "./target/x86_64-apple-darwin/release/"
+          # Copy to expected location only if needed
+          TARGET_PATH="./target/x86_64-apple-darwin/release/cursed-ws-bridge"
+          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            cp "$BINARY_PATH" "./target/x86_64-apple-darwin/release/"
+          else
+            echo "Binary already in standard location"
+          fi
           ls -la ./target/x86_64-apple-darwin/release/
       
       # Build for ARM64
@@ -156,8 +168,14 @@ jobs:
           fi
           
           echo "✅ ARM64 binary found at: $BINARY_PATH"
-          # Copy to expected location
-          cp "$BINARY_PATH" "./target/aarch64-apple-darwin/release/"
+          # Copy to expected location only if needed
+          TARGET_PATH="./target/aarch64-apple-darwin/release/cursed-ws-bridge"
+          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            cp "$BINARY_PATH" "./target/aarch64-apple-darwin/release/"
+          else
+            echo "Binary already in standard location"
+          fi
           ls -la ./target/aarch64-apple-darwin/release/
       
       # Create universal binary
@@ -263,8 +281,14 @@ jobs:
           
           Write-Host "✅ Windows binary found at: $binaryPath"
           
-          # Copy to expected location if needed
-          Copy-Item -Path $binaryPath -Destination "./target/x86_64-pc-windows-msvc/release/" -Force
+          # Copy to expected location only if needed
+          $targetPath = "./target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe"
+          if ($binaryPath -ne $targetPath -and $binaryPath -ne "./$targetPath") {
+            Write-Host "Copying binary to standard location"
+            Copy-Item -Path $binaryPath -Destination "./target/x86_64-pc-windows-msvc/release/" -Force
+          } else {
+            Write-Host "Binary already in standard location"
+          }
           Get-ChildItem -Path "./target/x86_64-pc-windows-msvc/release/"
       
       # Upload artifact
