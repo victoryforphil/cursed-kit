@@ -1,0 +1,54 @@
+# Moon project configuration for cursed-ws-bridge (Rust)
+$schema: 'https://moonrepo.dev/schemas/project.json'
+language: 'rust'
+type: 'application'
+project:
+  name: 'cursed-ws-bridge'
+  description: 'WebSocket bridge server for the Cursed Kit'
+
+
+tasks:
+  check:
+    command: 'cargo check'
+    inputs:
+      - 'src/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+    platform: 'rust'
+  
+  build:
+    command: 'cargo build --release'
+    inputs:
+      - 'src/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+    outputs:
+      - 'target/release/cursed-ws-bridge'
+    platform: 'rust'
+  
+  test:
+    command: 'cargo test'
+    inputs:
+      - 'src/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+    platform: 'rust'
+  
+  dev:
+    command: 'cargo run'
+    inputs:
+      - 'src/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+    local: true
+
+    platform: 'rust'
+  
+  docker-build:
+    command: 'docker build -t cursed-ws-bridge .'
+    inputs:
+      - 'src/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'Dockerfile'
+    local: true 

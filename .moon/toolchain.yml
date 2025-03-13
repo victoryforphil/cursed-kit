@@ -1,0 +1,13 @@
+# Moon toolchain configuration
+# https://moonrepo.dev/docs/config/toolchain
+
+$schema: 'https://moonrepo.dev/schemas/toolchain.json'
+
+# Enable Rust toolchain
+rust: {}
+
+# Enable JavaScript/Node.js toolchain
+node:
+  # You can specify a version if needed
+  # version: '20.0.0'
+  packageManager: 'bun' 

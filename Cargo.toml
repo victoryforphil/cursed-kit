@@ -1,0 +1,3 @@
+[workspace]
+members = ["cursed-ws/cursed-ws-bridge"]
+resolver = "2"

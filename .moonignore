@@ -1,0 +1,14 @@
+# Ignore common directories
+node_modules
+.git
+target
+dist
+
+# Ignore temp files
+*.log
+*.tmp
+*.temp
+
+# Ignore OS files
+.DS_Store
+Thumbs.db 

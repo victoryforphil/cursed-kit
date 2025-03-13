@@ -1,0 +1,139 @@
+name: Build Platform Binaries
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  # Linux builds
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+        include:
+          - target: x86_64-unknown-linux-gnu
+            arch: x86_64
+          - target: aarch64-unknown-linux-gnu
+            arch: aarch64
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      
+      # Install cross-compilation tools
+      - name: Install cross-compilation dependencies
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      
+      # Build with cargo
+      - name: Build binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          cargo build --release --target ${{ matrix.target }}
+      
+      # Upload artifacts
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: cursed-ws-bridge-${{ matrix.arch }}-linux
+          path: cursed-ws/cursed-ws-bridge/target/${{ matrix.target }}/release/cursed-ws-bridge
+
+  # macOS build (universal)
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin aarch64-apple-darwin
+      
+      # Build for x86_64
+      - name: Build for x86_64
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          cargo build --release --target x86_64-apple-darwin
+      
+      # Build for ARM64
+      - name: Build for ARM64
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          cargo build --release --target aarch64-apple-darwin
+      
+      # Create universal binary
+      - name: Create universal binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          mkdir -p target/universal/release
+          lipo -create \
+            target/x86_64-apple-darwin/release/cursed-ws-bridge \
+            target/aarch64-apple-darwin/release/cursed-ws-bridge \
+            -output target/universal/release/cursed-ws-bridge
+      
+      # Upload universal binary
+      - name: Upload universal binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: cursed-ws-bridge-universal-macos
+          path: cursed-ws/cursed-ws-bridge/target/universal/release/cursed-ws-bridge
+  
+  # Windows build
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      
+      # Build with cargo
+      - name: Build binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          cargo build --release --target x86_64-pc-windows-msvc
+      
+      # Upload artifact
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: cursed-ws-bridge-x86_64-windows
+          path: cursed-ws/cursed-ws-bridge/target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe
+
+  # Create a release if this is a tag
+  create-release:
+    needs: [build-linux, build-macos, build-windows]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      
+      # Create release
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/cursed-ws-bridge-x86_64-linux/cursed-ws-bridge
+            artifacts/cursed-ws-bridge-aarch64-linux/cursed-ws-bridge
+            artifacts/cursed-ws-bridge-universal-macos/cursed-ws-bridge
+            artifacts/cursed-ws-bridge-x86_64-windows/cursed-ws-bridge.exe
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false 

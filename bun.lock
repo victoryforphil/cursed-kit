@@ -1,0 +1,29 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "devDependencies": {
+        "@moonrepo/cli": "^1.32.9",
+      },
+    },
+  },
+  "packages": {
+    "@moonrepo/cli": ["@moonrepo/cli@1.32.9", "", { "dependencies": { "detect-libc": "^2.0.3" }, "optionalDependencies": { "@moonrepo/core-linux-arm64-gnu": "1.32.9", "@moonrepo/core-linux-arm64-musl": "1.32.9", "@moonrepo/core-linux-x64-gnu": "1.32.9", "@moonrepo/core-linux-x64-musl": "1.32.9", "@moonrepo/core-macos-arm64": "1.32.9", "@moonrepo/core-macos-x64": "1.32.9", "@moonrepo/core-windows-x64-msvc": "1.32.9" }, "bin": { "moon": "moon.js" } }, "sha512-Oqq11fs1VyPGFtsxwM82/ppa5j+VPrn3NXe/0fJ/PXUaJzxXCDuB2tza8Sg0ZHfMwiQjKNwphd4fgqH6Ps3Kwg=="],
+
+    "@moonrepo/core-linux-arm64-gnu": ["@moonrepo/core-linux-arm64-gnu@1.32.9", "", { "os": "linux", "cpu": "arm64" }, "sha512-Nu4ok4FWxpWPYVNgtn4CtmmAwpwGdrQbtMmww3j05zbPuON8Ay/UtgYogZmbgObzHfUnc8COIm6Gk6q1lVqdRA=="],
+
+    "@moonrepo/core-linux-arm64-musl": ["@moonrepo/core-linux-arm64-musl@1.32.9", "", { "os": "linux", "cpu": "arm64" }, "sha512-RG7aQzrzF7N53Zsls5/NydLvofQwoUgs5vvu2T+qQWWpwc2f+DVrNLFg4SL44hfKn4suzjmROfoFyh8qDHHEPQ=="],
+
+    "@moonrepo/core-linux-x64-gnu": ["@moonrepo/core-linux-x64-gnu@1.32.9", "", { "os": "linux", "cpu": "x64" }, "sha512-o5Sd1HOvROgWDmTJ08GcO7OXdLzjThPZHowJDFf1shQOi08B4Gw8564H549jKcyilFa0D5BdLVfGdyAqTbEjJQ=="],
+
+    "@moonrepo/core-linux-x64-musl": ["@moonrepo/core-linux-x64-musl@1.32.9", "", { "os": "linux", "cpu": "x64" }, "sha512-wA0m7oqbFNTzz60EPrYCNJyxznclFSjaCROydD5u380GzU+u2nAg0tnDvmc8P+ug2DUsPFXSIo8XKB51njTyhQ=="],
+
+    "@moonrepo/core-macos-arm64": ["@moonrepo/core-macos-arm64@1.32.9", "", { "os": "darwin", "cpu": "arm64" }, "sha512-fiM8U4SAdb4znw4fvRQqXXEWqAQhjCrgehqDNVbb3ixeYCnv/AxsXiHGOBpg6omwRxavBLMuMn8pDdnY/rwq8A=="],
+
+    "@moonrepo/core-macos-x64": ["@moonrepo/core-macos-x64@1.32.9", "", { "os": "darwin", "cpu": "x64" }, "sha512-tvBkm4rAORHBXMxu6RrmknOA3rnCX5RX0w87gADffgopdtCvWJNrFev5n2qcgd1J9/DKTCrEkIr34z+CtX8Z7g=="],
+
+    "@moonrepo/core-windows-x64-msvc": ["@moonrepo/core-windows-x64-msvc@1.32.9", "", { "os": "win32", "cpu": "x64" }, "sha512-iPxPvmlLMjaSHYkdo9qIH4BU3jCEX/vD0BOipfp0+xvR8vctyXAZZb/eMegTRRbQV1FafRJ4X58uLRZ5azXspA=="],
+
+    "detect-libc": ["detect-libc@2.0.3", "", {}, "sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw=="],
+  }
+}

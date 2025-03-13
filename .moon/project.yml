@@ -1,0 +1,10 @@
+# Root project configuration
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+project:
+  name: 'cursed-kit'
+  description: 'Root project for Cursed Kit components'
+  language: 'typescript'
+  type: 'application'
+
+# All tasks are defined at the workspace level 
