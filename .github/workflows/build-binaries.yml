@@ -36,11 +36,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       
-      # Build with cargo
+      # Build with cargo and enable vendored openssl feature
       - name: Build binary
         run: |
           cd cursed-ws/cursed-ws-bridge
-          cargo build --release --target ${{ matrix.target }}
+          cargo build --release --target ${{ matrix.target }} --features vendored-openssl
       
       # Upload artifacts
       - name: Upload binary
@@ -48,6 +48,15 @@ jobs:
         with:
           name: cursed-ws-bridge-${{ matrix.arch }}-linux
           path: cursed-ws/cursed-ws-bridge/target/${{ matrix.target }}/release/cursed-ws-bridge
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## Linux ${{ matrix.arch }} Binary" >> $GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge && ./cursed-ws-bridge" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # macOS build (universal)
   build-macos:
@@ -88,6 +97,15 @@ jobs:
         with:
           name: cursed-ws-bridge-universal-macos
           path: cursed-ws/cursed-ws-bridge/target/universal/release/cursed-ws-bridge
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## macOS Universal Binary" >> $GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge && ./cursed-ws-bridge" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
   
   # Windows build
   build-windows:
@@ -112,6 +130,15 @@ jobs:
         with:
           name: cursed-ws-bridge-x86_64-windows
           path: cursed-ws/cursed-ws-bridge/target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## Windows x86_64 Binary" >> $env:GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $env:GITHUB_STEP_SUMMARY
+          echo '```powershell' >> $env:GITHUB_STEP_SUMMARY
+          echo ".\cursed-ws-bridge.exe" >> $env:GITHUB_STEP_SUMMARY
+          echo '```' >> $env:GITHUB_STEP_SUMMARY
 
   # Create a release if this is a tag
   create-release:
@@ -136,4 +163,28 @@ jobs:
             artifacts/cursed-ws-bridge-x86_64-windows/cursed-ws-bridge.exe
           name: Release ${{ github.ref_name }}
           draft: false
-          prerelease: false 
+          prerelease: false
+      
+      # Print comprehensive summary
+      - name: Print Release Summary
+        run: |
+          echo "## Cursed-WS-Bridge Binaries" >> $GITHUB_STEP_SUMMARY
+          echo "### Linux (x86_64)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-x86_64-linux && ./cursed-ws-bridge-x86_64-linux" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Linux (ARM64)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-aarch64-linux && ./cursed-ws-bridge-aarch64-linux" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### macOS (Universal)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-universal-macos && ./cursed-ws-bridge-universal-macos" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Windows" >> $GITHUB_STEP_SUMMARY
+          echo '```powershell' >> $GITHUB_STEP_SUMMARY
+          echo ".\cursed-ws-bridge-x86_64-windows.exe" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY 
