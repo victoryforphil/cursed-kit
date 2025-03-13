@@ -44,7 +44,7 @@ jobs:
       
       # Upload artifacts
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cursed-ws-bridge-${{ matrix.arch }}-linux
           path: cursed-ws/cursed-ws-bridge/target/${{ matrix.target }}/release/cursed-ws-bridge
@@ -84,7 +84,7 @@ jobs:
       
       # Upload universal binary
       - name: Upload universal binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cursed-ws-bridge-universal-macos
           path: cursed-ws/cursed-ws-bridge/target/universal/release/cursed-ws-bridge
@@ -108,7 +108,7 @@ jobs:
       
       # Upload artifact
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cursed-ws-bridge-x86_64-windows
           path: cursed-ws/cursed-ws-bridge/target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe
@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       
