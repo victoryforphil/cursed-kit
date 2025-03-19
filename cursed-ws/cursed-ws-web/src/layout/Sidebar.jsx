@@ -228,7 +228,7 @@ function FileTreeNode({ node, level = 0, onToggle, onFileClick }) {
             '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' }
           }}
         >
-          <Group pl={indentation} spacing="xs" noWrap>
+          <Group pl={indentation} spacing="xs" nowrap>
             {isDirectory ? (
               node.expanded ? <IconFolderOpen size={14} /> : <IconFolder size={14} />
             ) : (

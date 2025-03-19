@@ -1,5 +1,7 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "apache-arrow": "^19.0.1"
+  },
   "devDependencies": {
     "@moonrepo/cli": "^1.32.9"
   }

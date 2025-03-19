@@ -17,6 +17,7 @@ import {
 import { useWebSocketContext } from '../../context/WebSocketProvider';
 import { CodeHighlight } from '@mantine/code-highlight';
 import { IconSend, IconRefresh } from '@tabler/icons-react';
+import ArrowDataViewer from '../ArrowDataViewer';
 
 /**
  * Format time duration from milliseconds to a readable string
@@ -52,7 +53,8 @@ export function DebugView() {
     address,
     port,
     connect,
-    disconnect
+    disconnect,
+    latestMessage
   } = useWebSocketContext();
   
   const [uptime, setUptime] = useState(0);
@@ -184,7 +186,7 @@ export function DebugView() {
             {topicCount > 0 ? (
               <Stack spacing="xs">
                 {Object.entries(messagesByTopic).map(([topic, { timestamp }]) => (
-                  <Group key={topic} position="apart" noWrap>
+                  <Group key={topic} position="apart" nowrap>
                     <Text size="sm" truncate>{topic}</Text>
                     <Text size="xs" c="dimmed">
                       {new Date(timestamp).toLocaleTimeString()}
@@ -218,6 +220,16 @@ Topics: ${topicCount}
             </Code>
           </Card>
         </Grid.Col>
+        
+        {/* Arrow Data Viewer */}
+        {latestMessage && latestMessage.isArrowIPC && (
+          <Grid.Col span={12}>
+            <Card withBorder p="md">
+              <Title order={4} mb="md">Latest Arrow Data</Title>
+              <ArrowDataViewer data={latestMessage} />
+            </Card>
+          </Grid.Col>
+        )}
       </Grid>
     </Container>
   );

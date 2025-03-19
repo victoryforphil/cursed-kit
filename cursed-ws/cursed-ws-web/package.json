@@ -22,6 +22,7 @@
     "@tabler/icons-react": "^3.31.0",
     "@types/lodash": "^4.17.16",
     "@types/three": "^0.174.0",
+    "apache-arrow": "^19.0.1",
     "date-fns": "^4.1.0",
     "diff": "^7.0.0",
     "lodash": "^4.17.21",

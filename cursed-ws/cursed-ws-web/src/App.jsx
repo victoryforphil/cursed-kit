@@ -57,7 +57,7 @@ function App() {
           <Route path="/table" element={<TableView />} />
           <Route path="/plots" element={<PlotsView />} />
           <Route path="/debug" element={<DebugView />} />
-          <Route path="/settings" element={<SettingsPanel />} />
+
         </Route>
       </Routes>
       <ConnectionDebugStatus />

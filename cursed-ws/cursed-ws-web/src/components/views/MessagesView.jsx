@@ -219,7 +219,7 @@ export function TableView() {
                     return (
                       <Accordion.Item key={topic} value={topic}>
                         <Accordion.Control>
-                          <Group position="apart" noWrap>
+                          <Group position="apart" nowrap>
                             <Text>{topic}</Text>
                             <Text size="xs" c="dimmed">
                               {formattedTime}
