@@ -9,9 +9,14 @@ import { FileInput } from '@mantine/core';
 
 import "./App.css";
 import CursedNavBar from "./components/navbar";
+
+//TODO: Import our views @claude
 import EguiView from "./components/views/egui_view";
 import PlotlyView from "./components/views/plotly_view";
 import VideoView from "./components/views/video_view";
+
+
+
 
 let didInit = false;
 

@@ -7,9 +7,8 @@ use log::{debug, info};
 use prost::Message;
 
 pub mod cursed {
-    tonic::include_proto!("cursed"); // The string specified here must match the proto package name
+    tonic::include_proto!("cursed"); / The stri/ng specified here must match the proto package name
 }
-
 
 
 #[derive(Debug)]
@@ -23,7 +22,8 @@ impl cursed::csv_service_server::CsvService for CSVServiceImpl {
     async fn request_csv(
         &self,
         request: Request<cursed::CsvRequest>, // Accept request of type HelloRequest
-    ) -> Result<Response<cursed::CsvResponse>, Status> { // Return an instance of type HelloReply
+    ) -> Result<Response<cursed::CsvResponse>, Status> {
+        // Return an instance of type HelloReply
         
         let inner = request.into_inner();
         info!("Got a request: {:?}",inner.clone());
@@ -33,6 +33,7 @@ impl cursed::csv_service_server::CsvService for CSVServiceImpl {
 
         let reply = cursed::CsvResponse {
             csv_contents: file,
+            was_successfull: true
         };
         Ok(Response::new(reply)) // Send back our formatted greeting
     }

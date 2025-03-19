@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import { AppLayout } from './layout/AppLayout'
-import { MessagesView } from './components/views/MessagesView'
+import { TableView } from './components/views/MessagesView'
 import { PlotsView } from './components/views/PlotsView'
 import { ThreeDView } from './components/views/ThreeDView'
 import { DebugView } from './components/views/DebugView'
@@ -53,11 +53,11 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<Navigate to="/messages" replace />} />
-          <Route path="messages" element={<MessagesView />} />
-          <Route path="plots" element={<PlotsView />} />
-          <Route path="3d" element={<ThreeDView />} />
-          <Route path="debug" element={<DebugView />} />
+          <Route index element={<Navigate to="/table" replace />} />
+          <Route path="/table" element={<TableView />} />
+          <Route path="/plots" element={<PlotsView />} />
+          <Route path="/debug" element={<DebugView />} />
+          <Route path="/settings" element={<SettingsPanel />} />
         </Route>
       </Routes>
       <ConnectionDebugStatus />

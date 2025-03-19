@@ -69,14 +69,21 @@ jobs:
           
           echo "✅ Binary for ${{ matrix.target }} found at: $BINARY_PATH"
           
-          # Copy to expected location only if needed
-          TARGET_PATH="./target/${{ matrix.target }}/release/cursed-ws-bridge"
-          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/${{ matrix.target }}/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
             echo "Copying binary to standard location"
-            cp "$BINARY_PATH" "./target/${{ matrix.target }}/release/"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
           else
             echo "Binary already in standard location"
           fi
+          
           ls -la "./target/${{ matrix.target }}/release/"
       
       # Upload artifacts
@@ -140,14 +147,22 @@ jobs:
           fi
           
           echo "✅ x86_64 binary found at: $BINARY_PATH"
-          # Copy to expected location only if needed
-          TARGET_PATH="./target/x86_64-apple-darwin/release/cursed-ws-bridge"
-          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+          
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/x86_64-apple-darwin/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
             echo "Copying binary to standard location"
-            cp "$BINARY_PATH" "./target/x86_64-apple-darwin/release/"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
           else
             echo "Binary already in standard location"
           fi
+          
           ls -la ./target/x86_64-apple-darwin/release/
       
       # Build for ARM64
@@ -168,14 +183,22 @@ jobs:
           fi
           
           echo "✅ ARM64 binary found at: $BINARY_PATH"
-          # Copy to expected location only if needed
-          TARGET_PATH="./target/aarch64-apple-darwin/release/cursed-ws-bridge"
-          if [ "$BINARY_PATH" != "$TARGET_PATH" ] && [ "$BINARY_PATH" != "./$TARGET_PATH" ]; then
+          
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/aarch64-apple-darwin/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
             echo "Copying binary to standard location"
-            cp "$BINARY_PATH" "./target/aarch64-apple-darwin/release/"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
           else
             echo "Binary already in standard location"
           fi
+          
           ls -la ./target/aarch64-apple-darwin/release/
       
       # Create universal binary
@@ -281,14 +304,23 @@ jobs:
           
           Write-Host "✅ Windows binary found at: $binaryPath"
           
-          # Copy to expected location only if needed
-          $targetPath = "./target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe"
-          if ($binaryPath -ne $targetPath -and $binaryPath -ne "./$targetPath") {
+          # Using PowerShell to normalize paths
+          $targetDir = "./target/x86_64-pc-windows-msvc/release"
+          $targetPath = "$targetDir/cursed-ws-bridge.exe"
+          $absBinaryPath = [System.IO.Path]::GetFullPath($binaryPath)
+          $absTargetPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $targetPath))
+          
+          # Only copy if the file is not already in the correct location
+          if ($absBinaryPath -ne $absTargetPath) {
             Write-Host "Copying binary to standard location"
-            Copy-Item -Path $binaryPath -Destination "./target/x86_64-pc-windows-msvc/release/" -Force
+            if (-Not (Test-Path $targetDir)) {
+              New-Item -Path $targetDir -ItemType Directory -Force
+            }
+            Copy-Item -Path $binaryPath -Destination $targetPath -Force
           } else {
             Write-Host "Binary already in standard location"
           }
+          
           Get-ChildItem -Path "./target/x86_64-pc-windows-msvc/release/"
       
       # Upload artifact

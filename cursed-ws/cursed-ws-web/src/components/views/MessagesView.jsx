@@ -54,7 +54,7 @@ const formatData = (data) => {
   }
 };
 
-export function MessagesView() {
+export function TableView() {
   const { 
     latestMessage, 
     messagesByTopic,

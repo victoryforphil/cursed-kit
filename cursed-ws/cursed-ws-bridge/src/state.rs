@@ -5,6 +5,7 @@ pub struct WSBridgeState{
     pub t_ms: u64,
     pub last_t_ms: Option<u64>,
     pub send_rate_hz: f64,
+    pub use_arrow_ipc: bool,
 }
 
 pub type StateHandle = std::sync::Arc<std::sync::Mutex<WSBridgeState>>;
@@ -15,6 +16,7 @@ impl Default for WSBridgeState{
             t_ms: 0,
             last_t_ms: None,
             send_rate_hz: 1000.0,
+            use_arrow_ipc: true,
         }
     }
 }
