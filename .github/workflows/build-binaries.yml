@@ -1,0 +1,441 @@
+name: Build Platform Binaries
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  # Linux builds
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+        include:
+          - target: x86_64-unknown-linux-gnu
+            arch: x86_64
+          - target: aarch64-unknown-linux-gnu
+            arch: aarch64
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      
+      # Install cross-compilation tools
+      - name: Install cross-compilation dependencies
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      
+      # Install general dependencies
+      - name: Install general dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+      
+      # Create output directories
+      - name: Create output directories
+        run: |
+          mkdir -p ./cursed-ws/cursed-ws-bridge/target/${{ matrix.target }}/release
+      
+      # Build with cargo and enable vendored openssl feature
+      - name: Build binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          # Set explicit target directory to ensure correct path
+          CARGO_TARGET_DIR=./target cargo build --release --target ${{ matrix.target }} --features vendored-openssl
+          
+          # Print directory structure to debug issues
+          echo "Directory structure:"
+          find target -type d | sort
+          
+          # Find the binary, it might be in a different location
+          BINARY_PATH=$(find target -name "cursed-ws-bridge" -type f | grep ${{ matrix.target }} | head -n 1)
+          if [ -z "$BINARY_PATH" ]; then
+            echo "❌ Binary for ${{ matrix.target }} was not found!"
+            # Find any binary at all to see what's being created
+            find . -type f -name "cursed-ws-bridge*" | xargs ls -la 2>/dev/null || echo "No binaries found"
+            exit 1
+          fi
+          
+          echo "✅ Binary for ${{ matrix.target }} found at: $BINARY_PATH"
+          
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/${{ matrix.target }}/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
+          else
+            echo "Binary already in standard location"
+          fi
+          
+          ls -la "./target/${{ matrix.target }}/release/"
+      
+      # Upload artifacts
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cursed-ws-bridge-${{ matrix.arch }}-linux
+          path: |
+            ./cursed-ws/cursed-ws-bridge/target/${{ matrix.target }}/release/cursed-ws-bridge 
+            ./cursed-ws/cursed-ws-bridge/target/*/${{ matrix.target }}/release/cursed-ws-bridge
+          if-no-files-found: error
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## Linux ${{ matrix.arch }} Binary" >> $GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge && ./cursed-ws-bridge" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # macOS build (universal)
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin aarch64-apple-darwin
+      
+      # Install OpenSSL for macOS
+      - name: Install OpenSSL
+        run: |
+          brew install openssl@3
+          echo "OPENSSL_DIR=$(brew --prefix openssl@3)" >> $GITHUB_ENV
+      
+      # Create output directories
+      - name: Create output directories
+        run: |
+          mkdir -p ./cursed-ws/cursed-ws-bridge/target/x86_64-apple-darwin/release
+          mkdir -p ./cursed-ws/cursed-ws-bridge/target/aarch64-apple-darwin/release
+          mkdir -p ./cursed-ws/cursed-ws-bridge/target/universal/release
+      
+      # Build for x86_64
+      - name: Build for x86_64
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          # Set explicit target directory to ensure correct path
+          OPENSSL_DIR=${{ env.OPENSSL_DIR }} CARGO_TARGET_DIR=./target cargo build --release --target x86_64-apple-darwin --features vendored-openssl
+          
+          # Find the binary, it might be in a different location
+          BINARY_PATH=$(find target -name "cursed-ws-bridge" -type f | grep x86_64 | head -n 1)
+          if [ -z "$BINARY_PATH" ]; then
+            echo "❌ x86_64 binary was not found!"
+            # Find any binary at all to see what's being created
+            find . -type f -name "cursed-ws-bridge*" | xargs ls -la
+            find target -type d | sort
+            exit 1
+          fi
+          
+          echo "✅ x86_64 binary found at: $BINARY_PATH"
+          
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/x86_64-apple-darwin/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
+          else
+            echo "Binary already in standard location"
+          fi
+          
+          ls -la ./target/x86_64-apple-darwin/release/
+      
+      # Build for ARM64
+      - name: Build for ARM64
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          # Set explicit target directory to ensure correct path
+          OPENSSL_DIR=${{ env.OPENSSL_DIR }} CARGO_TARGET_DIR=./target cargo build --release --target aarch64-apple-darwin --features vendored-openssl
+          
+          # Find the binary, it might be in a different location
+          BINARY_PATH=$(find target -name "cursed-ws-bridge" -type f | grep aarch64 | head -n 1)
+          if [ -z "$BINARY_PATH" ]; then
+            echo "❌ ARM64 binary was not found!"
+            # Find any binary at all to see what's being created
+            find . -type f -name "cursed-ws-bridge*" | xargs ls -la
+            find target -type d | sort
+            exit 1
+          fi
+          
+          echo "✅ ARM64 binary found at: $BINARY_PATH"
+          
+          # Get absolute paths to prevent ./ prefix issues
+          TARGET_DIR="./target/aarch64-apple-darwin/release"
+          TARGET_PATH="$TARGET_DIR/cursed-ws-bridge"
+          ABS_BINARY_PATH=$(realpath "$BINARY_PATH")
+          ABS_TARGET_PATH=$(realpath -m "$TARGET_PATH") # -m allows for non-existent path
+          
+          # Only copy if the file is not already in the correct location
+          if [ "$ABS_BINARY_PATH" != "$ABS_TARGET_PATH" ]; then
+            echo "Copying binary to standard location"
+            mkdir -p "$TARGET_DIR"
+            cp "$BINARY_PATH" "$TARGET_PATH"
+          else
+            echo "Binary already in standard location"
+          fi
+          
+          ls -la ./target/aarch64-apple-darwin/release/
+      
+      # Create universal binary
+      - name: Create universal binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          
+          echo "Verifying source binaries exist before creating universal binary:"
+          X86_PATH=$(find target -name "cursed-ws-bridge" -type f | grep x86_64 | head -n 1)
+          ARM_PATH=$(find target -name "cursed-ws-bridge" -type f | grep aarch64 | head -n 1)
+          
+          echo "x86_64 binary path: $X86_PATH"
+          echo "ARM64 binary path: $ARM_PATH"
+          
+          if [ -n "$X86_PATH" ] && [ -n "$ARM_PATH" ]; then
+            echo "Creating universal binary with lipo..."
+            lipo -create "$X86_PATH" "$ARM_PATH" -output "./target/universal/release/cursed-ws-bridge"
+            
+            echo "Verifying universal binary was created:"
+            ls -la ./target/universal/release/
+            
+            # Check the architecture of the universal binary
+            echo "Universal binary architecture info:"
+            lipo -info ./target/universal/release/cursed-ws-bridge
+          else
+            echo "❌ Cannot create universal binary - source binaries missing"
+            exit 1
+          fi
+      
+      # Upload x86_64 binary separately (for debugging)
+      - name: Upload x86_64 binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cursed-ws-bridge-x86_64-macos
+          path: |
+            ./cursed-ws/cursed-ws-bridge/target/x86_64-apple-darwin/release/cursed-ws-bridge
+            ./cursed-ws/cursed-ws-bridge/target/*/x86_64-apple-darwin/release/cursed-ws-bridge
+          if-no-files-found: warn
+      
+      # Upload ARM64 binary separately (for debugging)
+      - name: Upload ARM64 binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cursed-ws-bridge-arm64-macos
+          path: |
+            ./cursed-ws/cursed-ws-bridge/target/aarch64-apple-darwin/release/cursed-ws-bridge
+            ./cursed-ws/cursed-ws-bridge/target/*/aarch64-apple-darwin/release/cursed-ws-bridge
+          if-no-files-found: warn
+      
+      # Upload universal binary
+      - name: Upload universal binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cursed-ws-bridge-universal-macos
+          path: ./cursed-ws/cursed-ws-bridge/target/universal/release/cursed-ws-bridge
+          if-no-files-found: error
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## macOS Universal Binary" >> $GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge && ./cursed-ws-bridge" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+  
+  # Windows build
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      
+      # Create output directories
+      - name: Create output directories
+        run: |
+          mkdir -p ./cursed-ws/cursed-ws-bridge/target/x86_64-pc-windows-msvc/release
+      
+      # Build with cargo
+      - name: Build binary
+        run: |
+          cd cursed-ws/cursed-ws-bridge
+          # Set explicit target directory to ensure correct path
+          $env:CARGO_TARGET_DIR="./target"
+          cargo build --release --target x86_64-pc-windows-msvc --features vendored-openssl
+          
+          # Debug directory structure
+          Write-Host "Directory structure:"
+          Get-ChildItem -Path target -Recurse -Directory | Select-Object FullName | Format-Table -HideTableHeaders
+          
+          # Find the binary, it might be in a different location
+          $binaryPath = Get-ChildItem -Path target -Recurse -Filter "cursed-ws-bridge.exe" | Where-Object { $_.FullName -like "*x86_64-pc-windows-msvc*" } | Select-Object -First 1 -ExpandProperty FullName
+          
+          if (-Not $binaryPath) {
+            Write-Host "❌ Windows binary was not found!"
+            Get-ChildItem -Path . -Recurse -Filter "cursed-ws-bridge*.exe" | ForEach-Object { Write-Host $_.FullName }
+            exit 1
+          }
+          
+          Write-Host "✅ Windows binary found at: $binaryPath"
+          
+          # Using PowerShell to normalize paths
+          $targetDir = "./target/x86_64-pc-windows-msvc/release"
+          $targetPath = "$targetDir/cursed-ws-bridge.exe"
+          $absBinaryPath = [System.IO.Path]::GetFullPath($binaryPath)
+          $absTargetPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $targetPath))
+          
+          # Only copy if the file is not already in the correct location
+          if ($absBinaryPath -ne $absTargetPath) {
+            Write-Host "Copying binary to standard location"
+            if (-Not (Test-Path $targetDir)) {
+              New-Item -Path $targetDir -ItemType Directory -Force
+            }
+            Copy-Item -Path $binaryPath -Destination $targetPath -Force
+          } else {
+            Write-Host "Binary already in standard location"
+          }
+          
+          Get-ChildItem -Path "./target/x86_64-pc-windows-msvc/release/"
+      
+      # Upload artifact
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cursed-ws-bridge-x86_64-windows
+          path: |
+            ./cursed-ws/cursed-ws-bridge/target/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe
+            ./cursed-ws/cursed-ws-bridge/target/*/x86_64-pc-windows-msvc/release/cursed-ws-bridge.exe
+          if-no-files-found: error
+      
+      # Print summary
+      - name: Print Usage Summary
+        run: |
+          echo "## Windows x86_64 Binary" >> $env:GITHUB_STEP_SUMMARY
+          echo "Download and run with:" >> $env:GITHUB_STEP_SUMMARY
+          echo '```powershell' >> $env:GITHUB_STEP_SUMMARY
+          echo ".\cursed-ws-bridge.exe" >> $env:GITHUB_STEP_SUMMARY
+          echo '```' >> $env:GITHUB_STEP_SUMMARY
+
+  # Create a release if this is a tag
+  create-release:
+    needs: [build-linux, build-macos, build-windows]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      # Debug artifact structure
+      - name: Check artifact structure
+        run: |
+          echo "Artifact directory structure:"
+          find artifacts -type f | sort
+      
+      # Move binaries to expected locations with proper names
+      - name: Organize release files
+        run: |
+          mkdir -p release_files
+          
+          # Find and copy Linux x86_64 binary
+          LINUX_X86_BINARY=$(find artifacts/cursed-ws-bridge-x86_64-linux -type f -name "cursed-ws-bridge" | head -n 1)
+          if [ -n "$LINUX_X86_BINARY" ]; then
+            cp "$LINUX_X86_BINARY" "release_files/cursed-ws-bridge-x86_64-linux"
+            chmod +x "release_files/cursed-ws-bridge-x86_64-linux"
+          else
+            echo "❌ Linux x86_64 binary not found"
+          fi
+          
+          # Find and copy Linux ARM64 binary
+          LINUX_ARM_BINARY=$(find artifacts/cursed-ws-bridge-aarch64-linux -type f -name "cursed-ws-bridge" | head -n 1)
+          if [ -n "$LINUX_ARM_BINARY" ]; then
+            cp "$LINUX_ARM_BINARY" "release_files/cursed-ws-bridge-aarch64-linux"
+            chmod +x "release_files/cursed-ws-bridge-aarch64-linux"
+          else
+            echo "❌ Linux ARM64 binary not found"
+          fi
+          
+          # Find and copy macOS universal binary
+          MACOS_BINARY=$(find artifacts/cursed-ws-bridge-universal-macos -type f -name "cursed-ws-bridge" | head -n 1)
+          if [ -n "$MACOS_BINARY" ]; then
+            cp "$MACOS_BINARY" "release_files/cursed-ws-bridge-universal-macos"
+            chmod +x "release_files/cursed-ws-bridge-universal-macos"
+          else
+            echo "❌ macOS universal binary not found"
+          fi
+          
+          # Find and copy Windows binary
+          WINDOWS_BINARY=$(find artifacts/cursed-ws-bridge-x86_64-windows -type f -name "cursed-ws-bridge.exe" | head -n 1)
+          if [ -n "$WINDOWS_BINARY" ]; then
+            cp "$WINDOWS_BINARY" "release_files/cursed-ws-bridge-x86_64-windows.exe"
+          else
+            echo "❌ Windows binary not found"
+          fi
+          
+          echo "Prepared release files:"
+          ls -la release_files/
+      
+      # Create release
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release_files/cursed-ws-bridge-x86_64-linux
+            release_files/cursed-ws-bridge-aarch64-linux
+            release_files/cursed-ws-bridge-universal-macos
+            release_files/cursed-ws-bridge-x86_64-windows.exe
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+      
+      # Print comprehensive summary
+      - name: Print Release Summary
+        run: |
+          echo "## Cursed-WS-Bridge Binaries" >> $GITHUB_STEP_SUMMARY
+          echo "### Linux (x86_64)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-x86_64-linux && ./cursed-ws-bridge-x86_64-linux" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Linux (ARM64)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-aarch64-linux && ./cursed-ws-bridge-aarch64-linux" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### macOS (Universal)" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "chmod +x cursed-ws-bridge-universal-macos && ./cursed-ws-bridge-universal-macos" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Windows" >> $GITHUB_STEP_SUMMARY
+          echo '```powershell' >> $GITHUB_STEP_SUMMARY
+          echo ".\cursed-ws-bridge-x86_64-windows.exe" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY 

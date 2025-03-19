@@ -1,0 +1,46 @@
+# Moon project configuration for cursed-ws-web (Vite + Bun)
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+project:
+  name: 'cursed-ws-web'
+  description: 'Web client for the Cursed Kit WebSocket bridge'
+
+language: 'javascript'
+type: 'application'
+
+tasks:
+  install:
+    command: 'bun install'
+    inputs: ['package.json', 'bun.lock']
+    platform: 'system'
+  
+  dev:
+    command: 'bun run dev'
+    deps: ['install']
+    inputs: ['src/**/*', 'public/**/*', 'package.json', 'bun.lock', 'vite.config.js']
+    local: true
+    platform: 'node'
+  
+  build:
+    command: 'bun run build'
+    deps: ['install']
+    inputs: ['src/**/*', 'public/**/*', 'package.json', 'bun.lock', 'vite.config.js']
+    outputs: ['dist/**/*']
+    platform: 'node'
+  
+  preview:
+    command: 'bun run preview'
+    deps: ['build']
+    local: true
+    platform: 'node'
+  
+  lint:
+    command: 'bun run lint'
+    deps: ['install']
+    inputs: ['src/**/*', '.eslintrc.js', 'eslint.config.js']
+    platform: 'node'
+  
+  docker-build:
+    command: 'docker build -t cursed-ws-web .'
+    inputs: ['src/**/*', 'public/**/*', 'package.json', 'bun.lock', 'vite.config.js', 'Dockerfile', 'nginx.conf']
+    local: true 

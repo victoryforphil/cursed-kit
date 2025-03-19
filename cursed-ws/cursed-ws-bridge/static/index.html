@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursed WebSocket Bridge</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Load Apache Arrow UMD bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/apache-arrow@14.0.2/Arrow.umd.js"></script>
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle">Toggle Dark Mode</button>
+    <h1>Cursed WebSocket Bridge</h1>
+    <div class="container">
+        <p>Welcome to the Cursed WebSocket Bridge server. This server provides a WebSocket interface for real-time data communication.</p>
+        
+        <h2>Connection Information</h2>
+        <p>To connect to the WebSocket server, use the following endpoint:</p>
+        <code>ws://[server-address]:3031/ws</code>
+        
+        <h2>Features</h2>
+        <ul>
+            <li>Real-time data streaming</li>
+            <li>JSON and Arrow IPC binary format support</li>
+            <li>Efficient message handling</li>
+        </ul>
+    </div>
+
+    <div class="status">
+        <h2>Server Status</h2>
+        <p id="status">Checking connection status...</p>
+        <button id="connect-btn">Test Connection</button>
+    </div>
+
+    <div class="data-container">
+        <h2>Received Data</h2>
+        <div class="data-display">
+            <h3>Topic: <span id="topic">None</span></h3>
+            <h3>Time: <span id="time">None</span></h3>
+            <h3>Data Format: <span id="format">None</span></h3>
+            <div id="data-content" class="data-content">No data received yet</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('status');
+            const connectBtn = document.getElementById('connect-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const topicElement = document.getElementById('topic');
+            const timeElement = document.getElementById('time');
+            const formatElement = document.getElementById('format');
+            const dataContentElement = document.getElementById('data-content');
+            
+            let socket = null;
+            let messageCount = 0;
+            
+            // Dark mode functionality
+            function loadTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.textContent = 'Toggle Light Mode';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggle.textContent = 'Toggle Dark Mode';
+                }
+            }
+            
+            // Check for system preference
+            function detectColorScheme() {
+                if (localStorage.getItem('theme')) {
+                    return;
+                }
+                
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.textContent = 'Toggle Light Mode';
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+            
+            // Toggle theme
+            themeToggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = 'Toggle Dark Mode';
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = 'Toggle Light Mode';
+                }
+            });
+            
+            // Process JSON message
+            function handleJsonMessage(message) {
+                try {
+                    const data = JSON.parse(message);
+                    if (data && data.NewDatapoint) {
+                        const datapoint = data.NewDatapoint;
+                        topicElement.textContent = datapoint.topic;
+                        timeElement.textContent = datapoint.time + ' ms';
+                        formatElement.textContent = 'JSON';
+                        
+                        // Display JSON content
+                        let jsonContent = datapoint.data_json || "No data";
+                        try {
+                            // Try to pretty-print if it's JSON
+                            const jsonObj = JSON.parse(jsonContent);
+                            jsonContent = JSON.stringify(jsonObj, null, 2);
+                        } catch (e) {
+                            // Use as-is if not valid JSON
+                        }
+                        
+                        dataContentElement.innerHTML = `<pre>${jsonContent}</pre>`;
+                        messageCount++;
+                    }
+                } catch (e) {
+                    console.error('Error processing JSON message:', e);
+                }
+            }
+            
+            // Process Arrow IPC binary message
+            async function handleArrowMessage(arrayBuffer) {
+                try {
+                    formatElement.textContent = 'Arrow IPC';
+                    
+                    // Check if Arrow is defined
+                    if (typeof arrow === 'undefined') {
+                        console.error('Arrow library not loaded');
+                        dataContentElement.innerHTML = `<p>Error: Arrow library not loaded</p>`;
+                        return;
+                    }
+                    
+                    // Use tableFromIPC to read the Arrow data directly
+                    const table = arrow.tableFromIPC(arrayBuffer);
+                    
+                    // Display table data
+                    const rows = table.toArray();
+                    
+                    // Extract topic and time from the first row
+                    if (rows.length > 0) {
+                        const firstRow = rows[0];
+                        
+                        // Update display with topic and time
+                        topicElement.textContent = firstRow.topic || 'Unknown';
+                        timeElement.textContent = (firstRow.time || 0) + ' ms';
+                        
+                        // Format data for display
+                        let content = '<table><thead><tr>';
+                        
+                        // Add headers
+                        for (const key in firstRow) {
+                            content += `<th>${key}</th>`;
+                        }
+                        content += '</tr></thead><tbody>';
+                        
+                        // Add row data
+                        content += '<tr>';
+                        for (const key in firstRow) {
+                            const value = firstRow[key];
+                            content += `<td>${value !== null ? JSON.stringify(value) : 'null'}</td>`;
+                        }
+                        content += '</tr>';
+                        
+                        content += '</tbody></table>';
+                        dataContentElement.innerHTML = content;
+                        messageCount++;
+                    } else {
+                        console.error('No rows found in Arrow data');
+                        dataContentElement.innerHTML = '<p>Error: No rows found in Arrow data</p>';
+                    }
+                } catch (e) {
+                    console.error('Error processing Arrow IPC message:', e);
+                    
+                    // Attempt alternative approach if the first fails
+                    try {
+                        const reader = new Arrow.RecordBatchFileReader(new Uint8Array(arrayBuffer));
+                        console.log("RecordBatchFileReader created");
+                        
+                        const recordBatch = reader.readRecordBatch(0);
+                        console.log("Read record batch:", recordBatch);
+                        
+                        // Log schema to help with debugging
+                        console.log("Arrow schema:", recordBatch.schema);
+                        
+                        // Format data for display using low-level API
+                        let content = '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
+                        
+                        for (let i = 0; i < recordBatch.numChildren; i++) {
+                            try {
+                                const col = recordBatch.getChildAt(i);
+                                const fieldName = recordBatch.schema.fields[i].name;
+                                const value = col.get(0);
+                                content += `<tr><td>${fieldName}</td><td>${value !== null ? value : 'null'}</td></tr>`;
+                            } catch (e) {
+                                console.error(`Error getting field ${i}:`, e);
+                                content += `<tr><td>Field ${i}</td><td>Error: ${e.message}</td></tr>`;
+                            }
+                        }
+                        
+                        content += '</tbody></table>';
+                        dataContentElement.innerHTML = content;
+                        
+                        // Update topic and time if possible
+                        try {
+                            const topicCol = recordBatch.getChildAt(0);
+                            const timeCol = recordBatch.getChildAt(1);
+                            
+                            if (topicCol && timeCol) {
+                                topicElement.textContent = topicCol.get(0).toString();
+                                timeElement.textContent = timeCol.get(0).toString() + ' ms';
+                            }
+                        } catch (e) {
+                            console.error("Error extracting topic/time:", e);
+                        }
+                    } catch (e2) {
+                        console.error('Both Arrow parsing methods failed:', e2);
+                        dataContentElement.innerHTML = `<p>Error processing Arrow data: ${e.message}</p>
+                            <p>This could be due to an incompatibility between the Arrow version in the browser and the server.</p>
+                            <p>See browser console for details.</p>`;
+                    }
+                }
+            }
+            
+            // WebSocket functionality
+            function connect() {
+                if (socket) {
+                    socket.close();
+                }
+                
+                statusElement.textContent = 'Connecting to WebSocket server...';
+                statusElement.className = '';
+                
+                try {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${protocol}//${window.location.host}/ws`;
+                    
+                    socket = new WebSocket(wsUrl);
+                    
+                    // Set binary type to arraybuffer to handle Arrow IPC
+                    socket.binaryType = 'arraybuffer';
+                    
+                    socket.onopen = function() {
+                        statusElement.textContent = 'Connected to WebSocket server ✅';
+                        statusElement.className = 'success';
+                        console.log("WebSocket connected");
+                    };
+                    
+                    socket.onmessage = async function(event) {
+                        console.log("Received message:", typeof event.data);
+                        if (typeof event.data === 'string') {
+                            // Handle JSON data
+                            handleJsonMessage(event.data);
+                        } else {
+                            // Handle binary Arrow data
+                            await handleArrowMessage(event.data);
+                        }
+                    };
+                    
+                    socket.onclose = function() {
+                        statusElement.textContent = 'Disconnected from WebSocket server ❌';
+                        statusElement.className = 'error';
+                        socket = null;
+                    };
+                    
+                    socket.onerror = function(error) {
+                        console.error("WebSocket error:", error);
+                        statusElement.textContent = 'Error connecting to WebSocket server ❌';
+                        statusElement.className = 'error';
+                    };
+                } catch (err) {
+                    console.error("Connection error:", err);
+                    statusElement.textContent = 'Error: ' + err.message;
+                    statusElement.className = 'error';
+                }
+            }
+            
+            // Initialize theme
+            loadTheme();
+            detectColorScheme();
+            
+            // Initialize connection
+            connect();
+            
+            // Add button event listener
+            connectBtn.addEventListener('click', connect);
+        });
+    </script>
+</body>
+</html> 

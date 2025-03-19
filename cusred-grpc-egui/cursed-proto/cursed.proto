@@ -12,6 +12,7 @@ message CSVRequest{
 
 message CSVResponse{
     string csv_contents = 1;
+    bool was_successfull = 2;
 }
 
 
